@@ -10,9 +10,8 @@ const defaultOptions = {
 
 function parseStdout(output) {
     try {
-        output = output.toString();
         output = output.substr(output.indexOf('"{'), output.lastIndexOf('}"'));
-        return JSON.parse(JSON.parse(output.toString()));    
+        return JSON.parse(JSON.parse(output));   
     } catch (err) {
         return new Error(err);
     }
@@ -24,17 +23,20 @@ function callAsync (script, args, options) {
             child_process.spawn(RSCRIPT, [script, JSON.stringify(args)])
             : child_process.spawn(RSCRIPT, [script]);
 
-        const ret = {};
+        const ret = {
+            stdout: '',
+            stderr: ''
+        };
         result.stdout.on('data', (output) => {
-            ret.stdout = parseStdout(output);
+            ret.stdout += output.toString();
         });
         result.stderr.on('data', (error) => {
-            ret.stderr = new Error(error.toString());
+            ret.stderr += error;
         });
-        result.on('exit', (singal) => {
-            // console.log('singal = ', singal);
+        result.on('close', (singal) => {
             if (singal == 0) {
-                if (!(ret.out instanceof Error)) {
+                ret.stdout = parseStdout(ret.stdout);
+                if (!(ret.stdout instanceof Error)) {
                     if (options.verboseResult) {
                         resolve({
                             pid: result.pid,
@@ -60,12 +62,17 @@ function callAsync (script, args, options) {
 }
 
 function call(script, args, options, callback) {
-    options = options | defaultOptions;
+    if (options instanceof Function) {
+        callback = options;
+        options = undefined;
+    }
+
+    options = options || defaultOptions;
 
     if (callback) {
         callAsync(script, args, options)
             .then(result => {
-                callback(result);
+                callback(null, result);
             })
             .catch(err => {
                 callback(err);
@@ -76,7 +83,7 @@ function call(script, args, options, callback) {
 }
 
 function callSync(script, args, options) {
-    options = options | defaultOptions;
+    options = options || defaultOptions;
 
     const result = args ? 
                     child_process.spawnSync(RSCRIPT, [script, JSON.stringify(args)])
@@ -88,7 +95,7 @@ function callSync(script, args, options) {
             error: new Error(result.stdout.toString())
         }        
     } else if (result.stdout) {
-        const ret = parseStdout(result.stdout);
+        const ret = parseStdout(result.stdout.toString());
         if (!(ret instanceof Error)) {            
             if (options.verboseResult) {
                 return {

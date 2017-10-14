@@ -1,6 +1,6 @@
 {
   "name": "js-call-r",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "js call r with a simple way.",
   "main": "index.js",
   "scripts": {

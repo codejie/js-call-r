@@ -11,16 +11,15 @@ npm install --save js-call-r
 ```
 
 ## Usage
-```
-    const rscript = require('js-call-r');
+```js
+const rscript = require('js-call-r');
 
-    // Sync
-    rscript.callSync(RScript, [Args], [Options]);
+// Sync
+rscript.callSync(RScript, [Args], [Options]);
 
-    // Async Promise
-    rscript.call(RScript, [Args], [Options]);
-    // Async callback
-    rscript.call(Rscript, Args, Options, callback);
+// Async, support Promise while callback is undefined
+rscript.call(RScript, [Args], [Options]);
+rscript.call(Rscript, [Args], [Options], [callback]);
 ```
 
 ## Synchronous
@@ -84,7 +83,7 @@ print(toJSON(output));
 
 ## Example
 ```
-    npm test
+npm test
 ```
 
 ## License

@@ -26,6 +26,10 @@ console.log('call R script to calc(Async) "1 + 3 = "');
 call.call('./test/test.R', {
     a: 1,
     b: 3
-}, undefined, (result) => {
-    console.log(result.result);
+}, (err, result) => {
+    if (err) {
+        console.log('err = ', err);
+    } else {
+        console.log(result.result);
+    }
 });
