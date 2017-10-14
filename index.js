@@ -13,7 +13,7 @@ function parseStdout(output) {
         output = output.substr(output.indexOf('"{'), output.lastIndexOf('}"'));
         return JSON.parse(JSON.parse(output));   
     } catch (err) {
-        return new Error(err);
+        return err;
     }
 }
 
@@ -31,7 +31,7 @@ function callAsync (script, args, options) {
             ret.stdout += output.toString();
         });
         result.stderr.on('data', (error) => {
-            ret.stderr += error;
+            ret.stderr += error.toString();
         });
         result.on('close', (singal) => {
             if (singal == 0) {
@@ -48,13 +48,19 @@ function callAsync (script, args, options) {
                 } else {
                     reject({
                         pid: result.pid,
-                        error: ret.stdout
+                        error: ret.stdout.message
                     });                    
                 }              
-            } else {
+            } else if (singal == 1) {
                 reject({
                     pid: result.pid,
                     error: ret.stderr
+                });
+                
+            } else {
+                reject({
+                    pid: result.pid,
+                    error: ret.stdout
                 });
             }
         });
@@ -89,12 +95,7 @@ function callSync(script, args, options) {
                     child_process.spawnSync(RSCRIPT, [script, JSON.stringify(args)])
                     : child_process.spawnSync(RSCRIPT, [script]);
 
-    if (result.status != 0) {
-        return {
-            pid: result.pid,
-            error: new Error(result.stdout.toString())
-        }        
-    } else if (result.stdout) {
+    if (result.status == 0) {
         const ret = parseStdout(result.stdout.toString());
         if (!(ret instanceof Error)) {            
             if (options.verboseResult) {
@@ -108,25 +109,21 @@ function callSync(script, args, options) {
         } else {
             return {
                 pid: result.pid,
-                error: ret
+                error: ret.message
             };            
-        }
-    } else if (result.stderr) {
+        }      
+    } else if (result.status == 1) {
         return {
             pid: result.pid,
-            error: new Error(result.stderr.toString())
-        };
-    } else if (result.signal) {
-        return {
-            pid: result.pid,
-            error: new Error('killed with ', result.signal)
+            error: result.stderr.toString()
         };
     } else {
         return {
             pid: result.pid,
-            error: new Error('unknown')
+            error: result.stdout.toString()
         };
-    }
+    }                
+
 }
 
 module.exports.callSync = callSync;

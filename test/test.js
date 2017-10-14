@@ -16,7 +16,7 @@ call.call('./test/test.R', {
     b: 3
 })
 .then((result) => {
-    console.log(result.result);
+    console.log(result);
 })
 .catch(err => {
     console.log('err = ', err);
@@ -30,6 +30,6 @@ call.call('./test/test.R', {
     if (err) {
         console.log('err = ', err);
     } else {
-        console.log(result.result);
+        console.log(result);
     }
 });
