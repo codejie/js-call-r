@@ -1,0 +1,24 @@
+{
+  "name": "js-call-r",
+  "version": "0.0.1",
+  "description": "js call r with a simple way.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codejie/js-call-r.git"
+  },
+  "keywords": [
+    "javascript",
+    "r",
+    "integrate"
+  ],
+  "author": "Jie.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codejie/js-call-r/issues"
+  },
+  "homepage": "https://github.com/codejie/js-call-r#readme"
+}
